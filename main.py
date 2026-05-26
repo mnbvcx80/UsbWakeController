@@ -1,7 +1,7 @@
 import os
 import sys
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQml import QQmlApplicationEngine, QQmlContext  # Lagt til QQmlContext her
 from PySide6.QtCore import QObject, Slot, Property, QAbstractListModel, QModelIndex, Qt
 
 class USBListModel(QAbstractListModel):
@@ -106,19 +106,16 @@ class USBBackend(QObject):
         status = "enabled" if enabled else "disabled"
         print(f"Mottok ønske om å endre {path} til {status}")
 
-        # Vi bruker pkexec for å kjøre helper-skriptet vårt med Polkit-rettigheter
         import subprocess
         cmd = ["pkexec", "/usr/local/bin/usb-wakeup-helper.py", path, status]
 
         try:
-            # Kjører kommandoen i bakgrunnen
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 print("Endring utført i systemet.")
+                self.scan_usb_devices()  # Modellen oppdateres automatisk etter suksess
             else:
                 print(f"Polkit-feil: {result.stderr}")
-                # Tips: Her kan du i fremtiden trigge en feilmelding i QML-grensesnittet
-                # slik at bryteren flipper tilbake hvis brukeren avbrøt passord-dialogen.
         except Exception as e:
             print(f"Kunne ikke kjøre Polkit-helper: {e}")
 
@@ -129,7 +126,6 @@ if __name__ == "__main__":
     backend = USBBackend()
     engine.rootContext().setContextProperty("usbBackend", backend)
 
-    # Finn QML-filen i samme mappe
     qml_file = os.path.join(os.path.dirname(__file__), "main.qml")
     engine.load(qml_file)
 
