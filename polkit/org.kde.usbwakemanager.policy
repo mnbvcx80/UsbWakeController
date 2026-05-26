@@ -4,8 +4,8 @@
 <policyconfig>
 
   <action id="org.kde.usbwakemanager.setwakeup">
-    <description>Endre USB-enheters vekkestatus</description>
-    <message>Systemet krever autentisering for å endre USB-vekkingsinnstillinger.</message>
+    <description>Modify USB device wakeup status</description>
+    <message>System authentication is required to change USB wakeup settings.</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
