@@ -4,3 +4,6 @@ This is and Usb Wake up controller i made with the help of AI, because i couldnt
 Before installing, make sure you have installed PySide6 and Kirigami:
 ```bash
 sudo dnf install python3-pyside6 kf6-kirigami-devel
+
+## Usage
+Launch the app from your system menu. When toggling a device's wakeup status, a system dialog will appear asking for authentication (root privileges via Polkit) to safely apply the changes.
