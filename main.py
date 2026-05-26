@@ -1,7 +1,7 @@
 import os
 import sys
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine, QQmlContext  # Lagt til QQmlContext her
+from PySide6.QtQml import QQmlApplicationEngine, QQmlContext
 from PySide6.QtCore import QObject, Slot, Property, QAbstractListModel, QModelIndex, Qt
 
 class USBListModel(QAbstractListModel):
@@ -58,7 +58,7 @@ class USBBackend(QObject):
 
     @Slot()
     def scan_usb_devices(self):
-        """Skanner sysfs etter USB-enheter."""
+        """Scans sysfs for USB devices with wakeup capabilities."""
         found_devices = []
         base_path = "/sys/bus/usb/devices"
 
@@ -73,15 +73,16 @@ class USBBackend(QObject):
             id_product_file = os.path.join(full_path, "idProduct")
 
             if os.path.exists(wakeup_file):
-                name = "Ukjent enhet"
+                name = "Unknown Device"
                 if os.path.exists(product_file):
                     with open(product_file, "r") as f:
                         name = f.read().strip()
 
+                # Skip root hubs to keep the list clean for the user
                 if not name or "root hub" in name.lower():
                     continue
 
-                usb_id = "Systemkontroller"
+                usb_id = "System Controller"
                 if os.path.exists(id_vendor_file) and os.path.exists(id_product_file):
                     with open(id_vendor_file, "r") as f:
                         vid = f.read().strip()
@@ -104,20 +105,21 @@ class USBBackend(QObject):
     @Slot(str, bool)
     def toggleWakeup(self, path, enabled):
         status = "enabled" if enabled else "disabled"
-        print(f"Mottok ønske om å endre {path} til {status}")
+        print(f"Received request to change {path} to {status}")
 
+        # Use pkexec to run the helper script with root privileges via Polkit
         import subprocess
         cmd = ["pkexec", "/usr/local/bin/usb-wakeup-helper.py", path, status]
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
-                print("Endring utført i systemet.")
-                self.scan_usb_devices()  # Modellen oppdateres automatisk etter suksess
+                print("System configuration updated successfully.")
+                self.scan_usb_devices()  # Automatically refresh the model on success
             else:
-                print(f"Polkit-feil: {result.stderr}")
+                print(f"Polkit error: {result.stderr}")
         except Exception as e:
-            print(f"Kunne ikke kjøre Polkit-helper: {e}")
+            print(f"Failed to execute Polkit helper: {e}")
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
