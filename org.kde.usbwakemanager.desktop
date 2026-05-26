@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=USB Wakeup Manager
-Comment=Styr hvilke USB-enheter som kan vekke PC-en
+Comment=Manage which USB devices can wake up the PC
 Exec=python3 /usr/local/share/usb-wakeup-manager/main.py
 Icon=preferences-system-power
 Terminal=false
