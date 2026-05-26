@@ -18,7 +18,7 @@ cp polkit/usb-wakeup-helper.py /usr/local/bin/
 chmod +x /usr/local/bin/usb-wakeup-helper.py
 
 # 3. Install the Polkit policy file
-cp polkit/org.kde.usbwakemanager.policy /usr/share/polkit-1/actions/
+cp polkit/org.kde.usb_wakemanager.policy /usr/share/polkit-1/actions/
 
 # 4. Install the desktop shortcut for the start menu
 cp org.kde.usbwakemanager.desktop /usr/share/applications/
